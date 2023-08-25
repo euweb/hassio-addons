@@ -7,23 +7,23 @@
 # Add your code here
 
 # Declare variables
-declare gateway
-declare ID
-declare secret
-declare username
-declare password
-declare server
-declare wait
-declare debug  
+# declare gateway
+# declare ID
+# declare secret
+# declare username
+# declare password
+# declare server
+# declare wait
+# declare debug  
 
 ## Get the keys from the user config options.
-gateway=$(bashio::config 'gateway')
-ID=$(bashio::config 'ID')
-secret=$(bashio::config 'secret')
-username=$(bashio::config 'username')
-password=$(bashio::config 'password')
-server=$(bashio::config 'server')
-wait=$(bashio::config 'wait' 5)
+gateway=$(bashio::config 'vpn-server.gateway')
+ID=$(bashio::config 'vpn-server.ID')
+secret=$(bashio::config 'vpn-server.secret')
+username=$(bashio::config 'vpn-server.username')
+password=$(bashio::config 'vpn-server.password')
+server=$(bashio::config 'ping.server')
+wait=$(bashio::config 'ping.wait' 5)
 debug=$(bashio::config 'debug' 0)
 
 ## Print the message the user supplied, defaults to "Hello World..."
