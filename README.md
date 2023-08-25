@@ -7,4 +7,12 @@ Home Assistant add-on repository Addons for Home Assistant
 
 This repository contains the following add-ons
 
-tbd
+### [VPNC Client add-on](./vpnc_client)
+
+![Supports aarch64 Architecture][aarch64-shield]
+![Supports amd64 Architecture][amd64-shield]
+![Supports armhf Architecture][armhf-shield]
+![Supports armv7 Architecture][armv7-shield]
+![Supports i386 Architecture][i386-shield]
+
+Easy to use VPN tunnel

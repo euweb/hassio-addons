@@ -7,21 +7,49 @@
 # Add your code here
 
 # Declare variables
-declare message
+declare gateway
+declare ID
+declare secret
+declare username
+declare password
+declare server
+declare wait
+declare debug  
 
-## Get the 'message' key from the user config options.
-message=$(bashio::config 'message')
+## Get the keys from the user config options.
+gateway=$(bashio::config 'gateway')
+ID=$(bashio::config 'ID')
+secret=$(bashio::config 'secret')
+username=$(bashio::config 'username')
+password=$(bashio::config 'password')
+server=$(bashio::config 'server')
+wait=$(bashio::config 'wait' 5)
+debug=$(bashio::config 'debug' 0)
 
 ## Print the message the user supplied, defaults to "Hello World..."
-bashio::log.info "${message:="Hello World..."}"
+bashio::log.info "creating vpnc config file"
+VPNC_CONFIG_PATH="/etc/vpnc/connection.conf"
+cat > "$VPNC_CONFIG_PATH" <<EOL
+IPSec gateway $gateway
+IPSec ID $ID
+IPSec secret $secret
+IKE Authmode psk
+Xauth username $username
+Xauth password $password
+local port 0
+DPD idle timeout (our side) 0
+Debug $debug
+EOL
+
 
 ## Run your program
+bashio::log.info "starting vpnc connection"
 vpnc connection
-sleep 5
+sleep $wait
 
-while ping -c 1 192.168.1.1 &> /dev/null
+while ping -c 1 $server &> /dev/null
 do
-  echo "ping okay, wait 5s"
-  sleep 5
+  bashio::log.info "ping okay, wait ${wait}s"
+  sleep $wait
 done
 
