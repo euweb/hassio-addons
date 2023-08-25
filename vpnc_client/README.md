@@ -58,4 +58,4 @@ docker run -d --cap-add=NET_ADMIN --device /dev/net/tun -it local/vpnc-client-ad
 ``````
 
 [addon-badge]: https://my.home-assistant.io/badges/supervisor_addon.svg
-[addon]: https://my.home-assistant.io/redirect/supervisor_addon/?repository_url=https%3A%2F%2Fgithub.com%2Feuweb%2Fhassio-addons&addon=a0d7b954_vpnc_client
+[addon]: https://my.home-assistant.io/redirect/supervisor_addon/?repository_url=https%3A%2F%2Fgithub.com%2Feuweb%2Fhassio-addons&addon=47267a49_vpnc_client
