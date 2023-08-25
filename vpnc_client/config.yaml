@@ -1,5 +1,5 @@
 name: VPNC client add-on
-version: "0.0.4"
+version: "0.0.5"
 slug: vpnc_client
 description: VPNC client add-on
 init: false
@@ -12,7 +12,7 @@ devices:
   - /dev/net/tun
 options:
   debug: 0
-  vpn-server:
+  vpn_server:
     gateway:
     ID:
     secret:
@@ -23,7 +23,7 @@ options:
     wait: 60    
 schema:
   debug: int
-  vpn-server:
+  vpn_server:
     gateway: str
     ID: str
     secret: password
