@@ -6,7 +6,9 @@
 
 declare APP_EXIT_CODE=${1}
 
-vpnc-disconnect connection
+# disconnect vpn connection
+bashio::log.info "Stopping vpnc connection"
+vpnc-disconnect
 
 if [[ "${APP_EXIT_CODE}" -ne 0 ]] && [[ "${APP_EXIT_CODE}" -ne 256 ]]; then
   bashio::log.warning "Halt add-on with exit code ${APP_EXIT_CODE}"
