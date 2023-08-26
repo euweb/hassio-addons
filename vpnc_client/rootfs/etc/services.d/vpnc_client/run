@@ -4,18 +4,6 @@
 # s6-overlay docs: https://github.com/just-containers/s6-overlay
 # ==============================================================================
 
-# Add your code here
-
-# Declare variables
-# declare gateway
-# declare ID
-# declare secret
-# declare username
-# declare password
-# declare server
-# declare wait
-# declare debug  
-
 ## Get the keys from the user config options.
 gateway=$(bashio::config "vpn_server.gateway")
 ID=$(bashio::config "vpn_server.ID")
@@ -27,7 +15,7 @@ wait=$(bashio::config 'ping.wait' 5)
 debug=$(bashio::config 'debug' 0)
 
 ## Print the message the user supplied, defaults to "Hello World..."
-bashio::log.info "creating vpnc config file"
+bashio::log.info "Creating vpnc config file"
 VPNC_CONFIG_PATH="/etc/vpnc/connection.conf"
 cat > "$VPNC_CONFIG_PATH" <<EOL
 IPSec gateway $gateway
@@ -43,13 +31,14 @@ EOL
 
 
 ## Run your program
-bashio::log.info "starting vpnc connection"
+bashio::log.info "Starting vpnc connection"
 vpnc connection
 sleep $wait
 
 while ping -c 1 $server &> /dev/null
 do
-  bashio::log.info "ping okay, wait ${wait}s"
+  bashio::log.info "Ping okay, wait ${wait}s"
   sleep $wait
 done
 
+bashio::log.error "Connection lost"
