@@ -1,0 +1,15 @@
+name: LaCrosse Scan add-on
+version: "0.1.0"
+slug: lacrosse_scan
+description: LaCrosse Scan add-on
+init: false
+arch:
+  - amd64
+  - aarch64
+  - i386
+  - armv7
+  - armhf
+privileged:
+  - NET_ADMIN
+devices:
+  - /dev/ttyUSB0
