@@ -1,4 +1,9 @@
 <!-- https://keepachangelog.com/en/1.1.0/ -->
+## 0.2.1
+
+### Fixed
+
+- typo in the config
 
 ## 0.2.0
 
