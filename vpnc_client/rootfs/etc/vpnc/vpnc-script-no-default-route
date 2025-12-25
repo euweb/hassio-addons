@@ -1,36 +1,105 @@
 #!/bin/sh
 # vpnc-script without default route modification
-# This script sets up split tunneling instead of full tunnel
+# Modified to prevent changing the default route
+
+set -e
+
+# =========== script (variable) setup ====================================
+
+PATH=/sbin:/usr/sbin:$PATH
+
+OS="`uname -s`"
+
+DEFAULT_ROUTE_FILE=/var/run/vpnc/defaultroute
+RESOLV_CONF_BACKUP=/var/run/vpnc/resolv.conf-backup
+
+# =========== tunnel interface handling ====================================
+
+do_ifconfig() {
+    if [ -n "$INTERNAL_IP4_MTU" ]; then
+        MTU=$INTERNAL_IP4_MTU
+    elif [ -n "$IPROUTE" ]; then
+        MTUDEV=`$IPROUTE route get "$VPNGATEWAY" | sed -ne 's/^.*dev \([a-z0-9]*\).*$/\1/p'`
+        MTU=`$IPROUTE link show "$MTUDEV" | sed -ne 's/^.*mtu \([0-9]*\).*$/\1/p'`
+        [ -n "$MTU" ] && MTU=`expr $MTU - 88`
+    fi
+
+    if [ -z "$MTU" ]; then
+        MTU=1412
+    fi
+
+    # Point to point interface require a netmask of 255.255.255.255
+    ifconfig "$TUNDEV" inet "$INTERNAL_IP4_ADDRESS" $INTERNAL_IP4_ADDRESS netmask 255.255.255.255 mtu ${MTU} up
+}
+
+# =========== route handling ====================================
+
+fix_ip_get_output() {
+    sed 's/ via \([^ ]*\)/ gw \1/g' | \
+        sed 's/ dev \([^ ]*\)/ \1/g' | \
+        sed 's/ src \([^ ]*\)/\/\1/g' | \
+        sed 's/cache//g' | sed 's/metric \([^ ]*\)//g'
+}
+
+# No default route modification!
+do_route() {
+    # Add host route to VPN gateway
+    if [ -n "$VPNGATEWAY" ]; then
+        route add -host "$VPNGATEWAY" gw "`$IPROUTE route get "$VPNGATEWAY" | fix_ip_get_output`"
+    fi
+
+    # If the server sends split-network settings, use those
+    if [ -n "$CISCO_SPLIT_INC" ]; then
+        i=0
+        while [ $i -lt $CISCO_SPLIT_INC ] ; do
+            eval NETWORK="\$CISCO_SPLIT_INC_${i}_ADDR"
+            eval NETMASK="\$CISCO_SPLIT_INC_${i}_MASK"
+            eval NETMASKLEN="\$CISCO_SPLIT_INC_${i}_MASKLEN"
+            if [ -n "$NETWORK" ]; then
+                route add -net "$NETWORK" netmask "$NETMASK" dev "$TUNDEV"
+            fi
+            i=`expr $i + 1`
+        done
+    fi
+}
+
+# =========== resolv.conf handling ====================================
+
+do_connect() {
+    do_ifconfig
+    do_route
+}
+
+do_disconnect() {
+    if [ -n "$CISCO_SPLIT_INC" ]; then
+        i=0
+        while [ $i -lt $CISCO_SPLIT_INC ] ; do
+            eval NETWORK="\$CISCO_SPLIT_INC_${i}_ADDR"
+            eval NETMASK="\$CISCO_SPLIT_INC_${i}_MASK"
+            if [ -n "$NETWORK" ]; then
+                route del -net "$NETWORK" netmask "$NETMASK" dev "$TUNDEV" 2> /dev/null
+            fi
+            i=`expr $i + 1`
+        done
+    fi
+    
+    if [ -n "$VPNGATEWAY" ]; then
+        route del -host "$VPNGATEWAY" 2> /dev/null
+    fi
+}
+
+# ========= main script code =================
 
 case "$reason" in
     connect)
-        # Set up the interface
-        ip link set dev "$TUNDEV" up
-        ip addr add "$INTERNAL_IP4_ADDRESS/32" peer "$INTERNAL_IP4_ADDRESS" dev "$TUNDEV"
-        
-        # Add specific routes if provided by the server (split tunneling)
-        if [ -n "$CISCO_SPLIT_INC" ]; then
-            i=0
-            while [ $i -lt $CISCO_SPLIT_INC ]; do
-                eval NETWORK="\$CISCO_SPLIT_INC_${i}_ADDR"
-                eval NETMASK="\$CISCO_SPLIT_INC_${i}_MASK"
-                eval NETMASKLEN="\$CISCO_SPLIT_INC_${i}_MASKLEN"
-                
-                if [ -n "$NETWORK" ]; then
-                    ip route add "$NETWORK/$NETMASKLEN" dev "$TUNDEV"
-                fi
-                i=$((i + 1))
-            done
-        fi
-        
-        # Set MTU
-        if [ -n "$INTERNAL_IP4_MTU" ]; then
-            ip link set dev "$TUNDEV" mtu "$INTERNAL_IP4_MTU"
-        fi
+        do_connect
         ;;
-        
     disconnect)
-        ip link set dev "$TUNDEV" down
+        do_disconnect
+        ;;
+    *)
+        echo "unknown reason '$reason'. Maybe vpnc-script needs to be updated" 1>&2
+        exit 0
         ;;
 esac
 
