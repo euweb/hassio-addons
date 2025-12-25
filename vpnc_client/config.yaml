@@ -1,19 +1,19 @@
 name: VPNC client add-on
-version: "0.1.0"
+version: "0.2.0"
 slug: vpnc_client
 description: VPNC client add-on
 init: false
 arch:
-  - amd64
-  - aarch64
-  - i386
-  - armv7
-  - armhf
+- amd64
+- aarch64
+- i386
+- armv7
+- armhf
 host_network: true
 privileged:
-  - NET_ADMIN
+- NET_ADMIN
 devices:
-  - /dev/net/tun
+- /dev/net/tun
 options:
   debug: 0
   vpn_server:
@@ -24,7 +24,7 @@ options:
     password:
   ping:
     server:
-    wait: 60    
+    wait: 60
 schema:
   debug: int
   vpn_server:
