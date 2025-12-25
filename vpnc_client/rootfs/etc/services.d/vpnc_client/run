@@ -34,6 +34,16 @@ EOL
 ## Run your program
 bashio::log.info "Starting vpnc connection"
 vpnc connection
+
+## Add custom routes through VPN
+if bashio::config.has_value 'vpn_routes'; then
+    bashio::log.info "Adding custom VPN routes"
+    for route in $(bashio::config 'vpn_routes'); do
+        bashio::log.info "Adding route: $route via tun0"
+        ip route add "$route" dev tun0 2>/dev/null || bashio::log.warning "Route $route already exists or failed"
+    done
+fi
+
 sleep $wait
 
 while ping -c 1 $server &> /dev/null

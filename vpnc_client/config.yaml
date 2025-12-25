@@ -1,5 +1,5 @@
 name: VPNC client add-on
-version: "0.2.5"
+version: "0.3.0"
 slug: vpnc_client
 description: VPNC client add-on
 init: false
@@ -22,6 +22,7 @@ options:
     secret:
     username:
     password:
+  vpn_routes: []
   ping:
     server:
     wait: 60
@@ -33,6 +34,8 @@ schema:
     secret: password
     username: str
     password: password
+  vpn_routes:
+  - str
   ping:
     server: str
     wait: int

@@ -1,9 +1,9 @@
 <!-- https://keepachangelog.com/en/1.1.0/ -->
-## 0.2.2
+## 0.3.0
 
-### Fixed
+### Add
 
-- unknown configuration directive in this vpnc version
+- new option for vpn routes
 
 ## 0.2.1
 

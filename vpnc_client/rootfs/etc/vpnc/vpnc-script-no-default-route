@@ -22,11 +22,14 @@ do_ifconfig() {
 # =========== route handling ====================================
 
 do_route() {
-    # Add host route to VPN gateway through original gateway
+    # Add host route to VPN gateway if it's not in the local network
     if [ -n "$VPNGATEWAY" ]; then
-        DEFAULTGW=$(ip route show default | awk '/default/ {print $3}')
-        if [ -n "$DEFAULTGW" ]; then
-            ip route add "$VPNGATEWAY/32" via "$DEFAULTGW"
+        # Check if gateway is already reachable
+        if ! ip route get "$VPNGATEWAY" >/dev/null 2>&1; then
+            DEFAULTGW=$(ip route show default | awk '/default/ {print $3}')
+            if [ -n "$DEFAULTGW" ]; then
+                ip route add "$VPNGATEWAY/32" via "$DEFAULTGW" 2>/dev/null || true
+            fi
         fi
     fi
 
