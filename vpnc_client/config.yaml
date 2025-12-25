@@ -1,5 +1,5 @@
 name: VPNC client add-on
-version: "0.2.4"
+version: "0.2.5"
 slug: vpnc_client
 description: VPNC client add-on
 init: false
