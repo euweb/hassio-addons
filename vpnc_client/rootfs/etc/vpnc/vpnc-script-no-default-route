@@ -1,0 +1,37 @@
+#!/bin/sh
+# vpnc-script without default route modification
+# This script sets up split tunneling instead of full tunnel
+
+case "$reason" in
+    connect)
+        # Set up the interface
+        ip link set dev "$TUNDEV" up
+        ip addr add "$INTERNAL_IP4_ADDRESS/32" peer "$INTERNAL_IP4_ADDRESS" dev "$TUNDEV"
+        
+        # Add specific routes if provided by the server (split tunneling)
+        if [ -n "$CISCO_SPLIT_INC" ]; then
+            i=0
+            while [ $i -lt $CISCO_SPLIT_INC ]; do
+                eval NETWORK="\$CISCO_SPLIT_INC_${i}_ADDR"
+                eval NETMASK="\$CISCO_SPLIT_INC_${i}_MASK"
+                eval NETMASKLEN="\$CISCO_SPLIT_INC_${i}_MASKLEN"
+                
+                if [ -n "$NETWORK" ]; then
+                    ip route add "$NETWORK/$NETMASKLEN" dev "$TUNDEV"
+                fi
+                i=$((i + 1))
+            done
+        fi
+        
+        # Set MTU
+        if [ -n "$INTERNAL_IP4_MTU" ]; then
+            ip link set dev "$TUNDEV" mtu "$INTERNAL_IP4_MTU"
+        fi
+        ;;
+        
+    disconnect)
+        ip link set dev "$TUNDEV" down
+        ;;
+esac
+
+exit 0
