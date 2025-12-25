@@ -1,5 +1,11 @@
 <!-- https://keepachangelog.com/en/1.1.0/ -->
 
+## 0.2.0
+
+### Fixed
+
+- do not alter the default route
+
 ## 0.1.0
 
 ### Added
